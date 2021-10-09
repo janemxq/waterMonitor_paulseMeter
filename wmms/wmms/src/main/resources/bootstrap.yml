@@ -1,0 +1,11 @@
+server:
+  port: ${SERVER_PORT:7771}
+  max-http-header-size: 102400
+spring:
+  application:
+    name: wmms
+  servlet:
+    multipart:
+      enabled: true
+      #最大上传文件大小30M
+      max-file-size: 30MB

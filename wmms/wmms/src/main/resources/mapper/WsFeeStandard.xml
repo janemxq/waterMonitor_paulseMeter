@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icicles.wmms.DAO.WsFeeStandardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.icicles.wmms.entity.po.WsFeeStandard">
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_user_id,
+        update_user_id,
+        create_time,
+        update_time,
+        sn,
+        display_name, sort_id, fee_standard,is_step
+    </sql>
+    <!-- 根据水表信息和缴费信息 -->
+    <select id="getPageList" resultType="com.icicles.wmms.entity.dto.WsFeeStandardDTO">
+        select
+        <include refid="Base_Column_List" />
+        from ws_fee_standard
+        <where>
+            <if test="wsFeeStandardQueryParam.displayName != null and wsFeeStandardQueryParam.displayName !=''">
+                and display_name = #{wsFeeStandardQueryParam.displayName}
+            </if>
+        </where>
+        order by sort_id asc,id desc
+    </select>
+</mapper>

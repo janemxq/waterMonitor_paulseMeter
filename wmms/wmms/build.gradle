@@ -1,0 +1,88 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
+    id 'java'
+}
+apply plugin: 'io.spring.dependency-management'
+group = 'com.icicles'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+description '用水监测管理系统（Water monitoring management system）'
+
+bootJar{
+//    archiveFileName = "app.${version}.jar"
+    //archiveFileName = "app.jar"
+}
+
+repositories {
+    //更换为阿里的仓库
+    maven{ url  "http://maven.aliyun.com/nexus/content/groups/public" }
+}
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+ext {
+    set('springCloudVersion', "Greenwich.RELEASE")
+}
+dependencies {
+    compile fileTree(dir:'libs',include:['*.jar'])
+    // 基础框架
+    implementation 'org.springframework.boot:spring-boot-starter-freemarker:2.1.5.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter:2.1.5.RELEASE'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.1.5.RELEASE'
+    compile "org.springframework.data:spring-data-commons:2.1.5.RELEASE"
+    // 授权鉴权框架
+    compile 'org.springframework.cloud:spring-cloud-starter-openfeign:2.1.2.RELEASE'
+    compile 'org.springframework.cloud:spring-cloud-starter-oauth2:2.1.2.RELEASE'
+    compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.2.RELEASE'
+    //compile 'org.springframework.cloud:spring-cloud-starter-security:2.1.2.RELEASE'
+    // 数据库框架
+    compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.3.1'
+    compile group: 'com.baomidou', name: 'mybatis-plus-generator', version: '3.3.1'
+    compile ("com.diboot:diboot-core-spring-boot-starter:2.0.5")
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
+    compile ('tk.mybatis:mapper-spring-boot-starter:2.0.1')
+    implementation 'com.alibaba:druid:1.1.17'
+    implementation 'mysql:mysql-connector-java:8.0.16'
+
+    compile ('com.alibaba:fastjson:1.2.47')
+    
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    annotationProcessor 'org.projectlombok:lombok'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+    implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    compile fileTree(dir: 'src/main/libs', includes: ['*.jar'])
+    //compile group: 'org.rxtx', name: 'rxtx', version: '2.1.7'
+    //compile group: 'org.bidib.jbidib.org.qbang.rxtx', name: 'rxtxcomm', version: '2.2'
+    compile group: 'org.apache.mina', name: 'mina-transport-serial', version: '2.0.9'
+    compile group: 'org.apache.mina', name: 'mina-transport-apr', version: '2.0.9'
+    compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.9'
+
+    //常用工具
+    compile group: 'cn.hutool', name: 'hutool-all', version: '5.3.7'
+    //excel功能
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
+    //导出pdf
+    compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.2'
+    compile group: 'com.itextpdf', name: 'itext-asian', version: '5.2.0'
+    //二维码
+    compile group: 'com.google.zxing', name: 'core', version: '3.3.0'
+    //二维码
+    compile group: 'com.google.zxing', name: 'javase', version: '3.3.0'
+
+    compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.0'
+    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.0'
+    /*runtimeOnly 'mysql:mysql-connector-java'*/
+    /*testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }*/
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}

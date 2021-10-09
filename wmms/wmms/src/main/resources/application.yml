@@ -1,0 +1,40 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: jdbc:${DATASOURCE_DBTYPE:mysql}://${DATASOURCE_HOST:127.0.0.1}:${DATASOURCE_PORT:3306}/wmms_db?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=UTC
+    username: ${DATASOURCE_USERNAME:root}
+    password: ${DATASOURCE_PASSWORD:123456}
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+logging:
+  level:
+    root: info
+    org.springframework.web: debug
+    org.springframework.security: debug
+  config: classpath:logback-spring.xml
+
+auth-server-url: http://127.0.0.1:${server.port} # 授权服务地址
+auth-token-url: ${auth-server-url}/oauth/token # 授权token服务地址
+auth-authorize-url: ${auth-server-url}/oauth/authorize # 用户授权服务地址
+security:
+  oauth2:
+    client:
+      client-id: client_1
+      client-secret: user
+      access-token-uri: ${auth-token-url}
+      user-authorization-uri: ${auth-authorize-url}
+---
+#测试环境配置(以profiles=test启动时修改以下内容,否则不用动)
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:${DATASOURCE_DBTYPE:mysql}://${DATASOURCE_HOST:106.13.231.226}:${DATASOURCE_PORT:3306}/wmms_db?characterEncoding=UTF-8&useUnicode=true&useSSL=false&serverTimezone=UTC
+    username: ${DATASOURCE_USERNAME:root}
+    password: ${DATASOURCE_PASSWORD:111111}
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+auth-server-url: http://118.190.158.21:${server.port} # 授权服务地址

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icicles.wmms.DAO.WsMeterReaderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.icicles.wmms.entity.po.WsMeterReader">
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_time,
+        update_time,
+        user_id, user_name, meter_id, meter_sn, village_id, village_name, start_num, end_num, pay_status, pay_time, consumption, price, account
+    </sql>
+
+    <!-- 按年统计 -->
+    <select id="getWaterSumByYear" resultType="com.icicles.wmms.entity.dto.WaterStatisticesDTO">
+        select DATE_FORMAT(create_time,'%Y') as date,sum(use_water) as num from ws_meter_reader
+        <where>
+            <if test="userSn != null and userSn !=''">
+                and user_sn = #{userSn}
+            </if>
+            <if test="meterSn != null and meterSn !=''">
+                and meter_sn = #{meterSn}
+            </if>
+            <if test="villageSn != null and villageSn !=''">
+                and village_sn = #{villageSn}
+            </if>
+        </where>
+        group by date
+    </select>
+
+    <!-- 按月统计 -->
+    <select id="getWaterSumByMonth" resultType="com.icicles.wmms.entity.dto.WaterStatisticesDTO">
+        select DATE_FORMAT(create_time,'%Y-%m') as date,sum(use_water) as num from ws_meter_reader
+        <where>
+            <if test="userSn != null and userSn !=''">
+                and user_sn = #{userSn}
+            </if>
+            <if test="meterSn != null and meterSn !=''">
+                and meter_sn = #{meterSn}
+            </if>
+            <if test="villageSn != null and villageSn !=''">
+                and village_sn = #{villageSn}
+            </if>
+            <if test="year != null and year !=''">
+                and YEAR(create_time) = #{year}
+            </if>
+        </where>
+        group by date
+    </select>
+    <!-- 按照季度查询 -->
+    <select id="getWaterSumBySeason" resultType="com.icicles.wmms.entity.dto.WaterStatisticesDTO">
+        select sum(use_water) as num,concat(date_format(create_time, '%Y'),FLOOR((date_format(create_time, '%m')+2)/3)) as date from ws_meter_reader
+        <where>
+            <if test="userSn != null and userSn !=''">
+                and user_sn = #{userSn}
+            </if>
+            <if test="meterSn != null and meterSn !=''">
+                and meter_sn = #{meterSn}
+            </if>
+            <if test="villageSn != null and villageSn !=''">
+                and village_sn = #{villageSn}
+            </if>
+            <if test="year != null and year !=''">
+                and YEAR(create_time) = #{year}
+            </if>
+        </where>
+        group by date;
+    </select>
+</mapper>

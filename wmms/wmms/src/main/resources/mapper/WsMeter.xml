@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icicles.wmms.DAO.WsMeterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.icicles.wmms.entity.po.WsMeter">
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_time,
+        update_time,
+        create_user_id,
+        update_user_id,
+        sn,group_sn,balance,village_sn,remark,user_sn,meter_type_sn, pulse_init,meter_init,meter_num,water_sum,read_time,activation_time,user_name, user_id, village_name, village_id, group_id,meter_type, group_name, online, pulse, mac_sn
+    </sql>
+
+    <sql id="My_Join_Column_List">
+        m.id,
+        m.create_time,
+        m.update_time,
+        m.create_user_id,
+        m.update_user_id,
+        m.sn,m.group_sn,m.balance,m.pulse_init,m.village_sn,m.remark,m.user_sn,m.meter_type_sn, m.meter_init,m.activation_time, meter_num,water_sum,read_time,u.name as user_name, m.user_id, m.village_name, m.village_id, m.group_id, m.meter_type,m.group_name, m.online, m.pulse, m.mac_sn
+    </sql>
+
+    <!-- 设备和用户联查 -->
+    <select id="getMeterList" resultType="com.icicles.wmms.entity.dto.WsMeterDTO">
+        select
+        <include refid="My_Join_Column_List" />
+        FROM ws_meter m LEFT JOIN t_sys_user u on m.user_sn = u.sn
+        <where>
+            <if test="wsMeterQueryForm.userName != null and wsMeterQueryForm.userName !=''">
+                and u.name = #{wsMeterQueryForm.userName}
+            </if>
+            <if test="wsMeterQueryForm.sn != null and wsMeterQueryForm.sn !=''">
+                and m.sn = #{wsMeterQueryForm.sn}
+            </if>
+            <if test="wsMeterQueryForm.villageId != null and wsMeterQueryForm.villageId !=''">
+                and m.village_id = #{wsMeterQueryForm.villageId}
+            </if>
+            <if test="wsMeterQueryForm.groupId != null and wsMeterQueryForm.groupId !=''">
+                and m.group_id = #{wsMeterQueryForm.groupId}
+            </if>
+            <if test="wsMeterQueryForm.online != null and wsMeterQueryForm.online !=''">
+                and m.online = #{wsMeterQueryForm.online}
+            </if>
+            <if test="wsMeterQueryForm.macSn != null and wsMeterQueryForm.macSn !=''">
+                and m.mac_sn = #{wsMeterQueryForm.macSn}
+            </if>
+            <if test="wsMeterQueryForm.createdTimeStart != null and wsMeterQueryForm.createdTimeStart !='' and wsMeterQueryForm.createdTimeEnd !=null and wsMeterQueryForm.createdTimeEnd!=''">
+                and m.create_time BETWEEN #{wsMeterQueryForm.createdTimeStart} and #{wsMeterQueryForm.createdTimeEnd}
+            </if>
+            <if test="wsMeterQueryForm.villageSn != null and wsMeterQueryForm.villageSn !=''">
+                and m.village_sn = #{wsMeterQueryForm.villageSn}
+            </if>
+            <if test="wsMeterQueryForm.groupSn != null and wsMeterQueryForm.groupSn !=''">
+                and m.group_sn = #{wsMeterQueryForm.groupSn}
+            </if>
+            <if test="wsMeterQueryForm.userSn != null and wsMeterQueryForm.userSn !=''">
+                and m.user_sn = #{wsMeterQueryForm.userSn}
+            </if>
+            <if test="wsMeterQueryForm.meterTypeSn != null and wsMeterQueryForm.meterTypeSn !=''">
+                and m.meter_type_sn = #{wsMeterQueryForm.meterTypeSn}
+            </if>
+        </where>
+    </select>
+    <!-- 设备和用户联查，用户去重 -->
+    <select id="getMeterUserList" resultMap="BaseResultMap" resultType="com.icicles.wmms.entity.po.WsMeter">
+        select
+        <include refid="My_Join_Column_List" />
+        FROM ws_meter m LEFT JOIN t_sys_user u on m.user_sn = u.sn
+        <where>
+            <if test="wsMeterQueryForm.userName != null and wsMeterQueryForm.userName !=''">
+                and u.name = #{wsMeterQueryForm.userName}
+            </if>
+            <if test="wsMeterQueryForm.sn != null and wsMeterQueryForm.sn !=''">
+                and m.sn = #{wsMeterQueryForm.sn}
+            </if>
+            <if test="wsMeterQueryForm.villageId != null and wsMeterQueryForm.villageId !=''">
+                and m.village_id = #{wsMeterQueryForm.villageId}
+            </if>
+            <if test="wsMeterQueryForm.groupId != null and wsMeterQueryForm.groupId !=''">
+                and m.group_id = #{wsMeterQueryForm.groupId}
+            </if>
+            <if test="wsMeterQueryForm.online != null and wsMeterQueryForm.online !=''">
+                and m.online = #{wsMeterQueryForm.online}
+            </if>
+            <if test="wsMeterQueryForm.macSn != null and wsMeterQueryForm.macSn !=''">
+                and m.mac_sn = #{wsMeterQueryForm.macSn}
+            </if>
+            <if test="wsMeterQueryForm.createdTimeStart != null and wsMeterQueryForm.createdTimeStart !='' and wsMeterQueryForm.createdTimeEnd !=null and wsMeterQueryForm.createdTimeEnd!=''">
+                and m.create_time BETWEEN #{wsMeterQueryForm.createdTimeStart} and #{wsMeterQueryForm.createdTimeEnd}
+            </if>
+            <if test="wsMeterQueryForm.villageSn != null and wsMeterQueryForm.villageSn !=''">
+                and m.village_sn = #{wsMeterQueryForm.villageSn}
+            </if>
+            <if test="wsMeterQueryForm.groupSn != null and wsMeterQueryForm.groupSn !=''">
+                and m.group_sn = #{wsMeterQueryForm.groupSn}
+            </if>
+            <if test="wsMeterQueryForm.userSn != null and wsMeterQueryForm.userSn !=''">
+                and m.user_sn = #{wsMeterQueryForm.userSn}
+            </if>
+            <if test="wsMeterQueryForm.meterTypeSn != null and wsMeterQueryForm.meterTypeSn !=''">
+                and m.meter_type_sn = #{wsMeterQueryForm.meterTypeSn}
+            </if>
+        </where>
+        GROUP BY m.user_id
+    </select>
+
+
+    <sql id="getMetersFeeInfo_Column_List">
+        id,
+        create_time,
+        update_time,
+        create_user_id,
+        update_user_id,
+        remark,
+        sn,activation_time,balance,group_sn,village_sn,user_sn,meter_type_sn, meter_init,water_sum,read_time,user_name,user_id, village_name, village_id, group_id, meter_type,group_name, online, pulse, mac_sn,
+        last_number,pulse_init,
+        pre_number,to_pay_water_volume,pre_pay_day
+    </sql>
+    <sql id="getMetersFeeInfo_Column_List2">
+        id,
+        create_time,
+        update_time,
+        create_user_id,
+        update_user_id,
+        remark,
+        sn,activation_time,pulse_init,balance,group_sn,village_sn,user_sn,meter_type_sn, meter_init,read_time,user_name,user_id, village_name, village_id, group_id, meter_type,group_name, online, pulse, mac_sn,
+        last_number,
+        pre_number,to_pay_water_volume,pre_pay_day
+    </sql>
+
+    <!-- 根据水表信息和缴费信息 -->
+    <select id="getMetersFeeInfo" resultType="com.icicles.wmms.entity.dto.MeterFeeDTO">
+        <choose>
+            <when test="volumeBase=='pluse'">
+                select
+                <include refid="getMetersFeeInfo_Column_List2" />
+                from (
+                select
+                m.id,
+                m.create_time,
+                m.update_time,
+                m.create_user_id,
+                m.update_user_id,
+                m.remark,
+                m.sn,m.activation_time,m.pulse_init,m.balance,m.group_sn,m.village_sn,m.user_sn,m.meter_type_sn, m.meter_init,m.meter_num,m.read_time, u.name as user_name, m.user_id, m.village_name, m.village_id, m.group_id, m.meter_type,m.group_name, m.online, m.pulse, m.mac_sn,
+                m.water_sum AS last_number,
+                IFNULL((SELECT pulse_sum FROM ws_fee_log fl WHERE fl.meter_sn=m.sn and fl.pay_status=1 ORDER BY fl.id desc LIMIT 1),m.pulse_init) AS pre_number,
+                (m.water_sum - IFNULL((SELECT pulse_sum FROM ws_fee_log f2 WHERE f2.meter_sn=m.sn and f2.pay_status=1 ORDER BY f2.id desc LIMIT 1),m.pulse_init)) AS to_pay_water_volume,
+                (SELECT fee_end_time FROM ws_fee_log f3 WHERE f3.meter_sn=m.sn and f3.pay_status=1 ORDER BY f3.id desc LIMIT 1) AS pre_pay_day
+                FROM ws_meter m LEFT JOIN t_sys_user u on m.user_sn = u.sn
+                <where>
+                    <if test="wsMeterSearchForm.userName != null and wsMeterSearchForm.userName !=''">
+                        and u.name = #{wsMeterSearchForm.userName}
+                    </if>
+                    <if test="wsMeterSearchForm.userId != null and wsMeterSearchForm.userId !=0">
+                        and m.user_id = #{wsMeterSearchForm.userId}
+                    </if>
+                    <if test="wsMeterSearchForm.phone != null and wsMeterSearchForm.phone !=''">
+                        and u.phone = #{wsMeterSearchForm.phone}
+                    </if>
+                    <if test="wsMeterSearchForm.villageId != null and wsMeterSearchForm.villageId !=''">
+                        and m.village_id = #{wsMeterSearchForm.villageId}
+                    </if>
+                    <if test="wsMeterSearchForm.groupId != null and wsMeterSearchForm.groupId !=''">
+                        and m.group_id = #{wsMeterSearchForm.groupId}
+                    </if>
+                    <if test="wsMeterSearchForm.villageSn != null and wsMeterSearchForm.villageSn !=''">
+                        and m.village_sn = #{wsMeterSearchForm.villageSn}
+                    </if>
+                    <if test="wsMeterSearchForm.groupSn != null and wsMeterSearchForm.groupSn !=''">
+                        and m.group_sn = #{wsMeterSearchForm.groupSn}
+                    </if>
+                    <if test="wsMeterSearchForm.userSn != null and wsMeterSearchForm.userSn !=''">
+                        and m.user_sn = #{wsMeterSearchForm.userSn}
+                    </if>
+                    <if test="wsMeterSearchForm.meterTypeSn != null and wsMeterSearchForm.meterTypeSn !=''">
+                        and m.meter_type_sn = #{wsMeterSearchForm.meterTypeSn}
+                    </if>
+                </where>
+                ) temp
+                order by to_pay_water_volume desc,id desc
+            </when>
+            <otherwise>
+                select
+                <include refid="getMetersFeeInfo_Column_List" />
+                from (
+                select
+                m.id,
+                m.create_time,
+                m.update_time,
+                m.create_user_id,
+                m.update_user_id,
+                m.remark,
+                m.sn,m.activation_time,m.balance,m.pulse_init,m.group_sn,m.village_sn,m.user_sn,m.meter_type_sn, m.meter_init,m.water_sum,m.read_time, u.name as user_name, m.user_id, m.village_name, m.village_id, m.group_id, m.meter_type,m.group_name, m.online, m.pulse, m.mac_sn,
+                m.meter_num AS last_number,
+                IFNULL((SELECT end_num FROM ws_fee_log fl WHERE fl.meter_sn=m.sn and fl.pay_status=1 ORDER BY fl.id desc LIMIT 1),0) AS pre_number,
+                (m.meter_num - IFNULL((SELECT end_num FROM ws_fee_log f2 WHERE f2.meter_sn=m.sn and f2.pay_status=1 ORDER BY f2.id desc LIMIT 1),0)) AS to_pay_water_volume,
+                (SELECT fee_end_time FROM ws_fee_log f3 WHERE f3.meter_sn=m.sn and f3.pay_status=1 ORDER BY f3.id desc LIMIT 1) AS pre_pay_day
+                FROM ws_meter m LEFT JOIN t_sys_user u on m.user_sn = u.sn
+                <where>
+                    <if test="wsMeterSearchForm.userName != null and wsMeterSearchForm.userName !=''">
+                        and u.name = #{wsMeterSearchForm.userName}
+                    </if>
+                    <if test="wsMeterSearchForm.userId != null and wsMeterSearchForm.userId !=0">
+                        and m.user_id = #{wsMeterSearchForm.userId}
+                    </if>
+                    <if test="wsMeterSearchForm.phone != null and wsMeterSearchForm.phone !=''">
+                        and u.phone = #{wsMeterSearchForm.phone}
+                    </if>
+                    <if test="wsMeterSearchForm.villageId != null and wsMeterSearchForm.villageId !=''">
+                        and m.village_id = #{wsMeterSearchForm.villageId}
+                    </if>
+                    <if test="wsMeterSearchForm.groupId != null and wsMeterSearchForm.groupId !=''">
+                        and m.group_id = #{wsMeterSearchForm.groupId}
+                    </if>
+                    <if test="wsMeterSearchForm.villageSn != null and wsMeterSearchForm.villageSn !=''">
+                        and m.village_sn = #{wsMeterSearchForm.villageSn}
+                    </if>
+                    <if test="wsMeterSearchForm.groupSn != null and wsMeterSearchForm.groupSn !=''">
+                        and m.group_sn = #{wsMeterSearchForm.groupSn}
+                    </if>
+                    <if test="wsMeterSearchForm.userSn != null and wsMeterSearchForm.userSn !=''">
+                        and m.user_sn = #{wsMeterSearchForm.userSn}
+                    </if>
+                    <if test="wsMeterSearchForm.meterTypeSn != null and wsMeterSearchForm.meterTypeSn !=''">
+                        and m.meter_type_sn = #{wsMeterSearchForm.meterTypeSn}
+                    </if>
+                </where>
+                ) temp
+                order by to_pay_water_volume desc,id desc
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

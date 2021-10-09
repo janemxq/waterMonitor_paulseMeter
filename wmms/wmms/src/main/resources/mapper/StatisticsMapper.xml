@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icicles.wmms.DAO.StatisticsMapper">
+    <sql id="Base_Column_List">
+       meter_sn, meter_num, meter_init, water_sum, activation_time, user_name, phone, volume, how_long,user_sn,village_name,group_name
+    </sql>
+
+    <!-- 查询一定时间不缴费的用户信息和设备信息：
+    ws_meter记录设备信息，有最新水表读数（meter_num）、总用水量（water_sum）、设备启用时间（activation_time）、水表初始值（meter_init）、设备号（sn）；
+    ws_fee_log记录缴费信息，可以获取最近缴费时水表读数（end_num）、时间（fee_end_time）;
+    t_sys_user记录用户信息（用户名、手机号）。
+    volume 代表没有缴费的那部分用水量：先看看缴费记录里面有没有读数，如果有 volume=（水表最新读数-缴费记录里面的读数）；如果缴费记录没有信息，volume=（水表最新读数-水表初始值）。
+    how_long 代表多久没有缴费了（天）：先看看缴费记录里面的缴费时间；如果有 how_long = （现在时间-缴费记录里面缴费时间）； 如果缴费记录没有信息 how_long = （现在时间-设备启用时间）
+    -->
+    <select id="getNopayUsers" resultType="com.icicles.wmms.entity.dto.PayDataExceptionDTO">
+        SELECT
+        <include refid="Base_Column_List" />
+        from (select m.sn as meter_sn,m.meter_num,meter_init,m.water_sum,m.activation_time,u.name as user_name,u.phone,u.sn as user_sn,m.village_name,m.group_name,
+        (meter_num - IFNULL((SELECT end_num FROM ws_fee_log fl WHERE fl.meter_sn=m.sn and fl.pay_status=1 ORDER BY fl.id desc LIMIT 1),0)) AS volume,
+        (to_days(now()) - TO_DAYS(IFNULL((SELECT fee_end_time FROM ws_fee_log f2 WHERE f2.meter_sn=m.sn and f2.pay_status=1 ORDER BY f2.id desc LIMIT 1),m.activation_time))) AS how_long
+        FROM ws_meter m LEFT JOIN t_sys_user u on m.user_sn = u.sn
+        WHERE m.user_sn!=''
+        <if test="userSn != null and userSn !=''">
+            and m.user_sn = #{userSn}
+        </if>
+        <if test="villageSn != null and villageSn !=''">
+            and m.village_sn = #{villageSn}
+        </if>
+        order by m.id desc) temp2
+        <where>
+            <if test="volume != null and volume >=0">
+                and volume > #{volume}
+            </if>
+            <if test="howLong != null and howLong >=0">
+                and how_long >= #{howLong}
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询欠费的用户信息和设备信息：
+   ws_meter记录设备信息，有最新水表读数（meter_num）、总用水量（water_sum）、设备启用时间（activation_time）、水表初始值（meter_init）、设备号（sn）；
+   ws_fee_log记录缴费信息，可以获取最近缴费时水表读数（end_num）、时间（fee_end_time）;
+   t_sys_user记录用户信息（用户名、手机号）。
+   volume 代表没有缴费的那部分用水量：先看看缴费记录里面有没有读数，如果有 volume=（水表最新读数-缴费记录里面的读数）；如果缴费记录没有信息，volume=（水表最新读数-水表初始值）。
+   how_long 代表多久没有缴费了（天）：先看看缴费记录里面的缴费时间；如果有 how_long = （现在时间-缴费记录里面缴费时间）； 如果缴费记录没有信息 how_long = （现在时间-设备启用时间）
+   -->
+    <select id="getNopayInfos" resultType="com.icicles.wmms.entity.dto.NopayInfoExceptionDTO">
+        SELECT
+        meter_sn, meter_num,water_sum, user_name, phone, volume,user_sn,village_name
+        from (select m.sn as meter_sn,m.meter_num,m.water_sum,u.name as user_name,u.phone,u.sn as user_sn,m.village_sn,v.village_name,
+        (meter_num - IFNULL((SELECT end_num FROM ws_fee_log fl WHERE fl.meter_sn=m.sn and fl.pay_status=1 ORDER BY fl.id desc LIMIT 1),0)) AS volume
+        FROM ws_meter m LEFT JOIN t_sys_user u on m.user_sn = u.sn LEFT JOIN ws_village v on v.sn=m.village_sn
+        WHERE m.user_sn!=''
+        <if test="userSn != null and userSn !=''">
+            and m.user_sn = #{userSn}
+        </if>
+        <if test="villageSn != null and villageSn !=''">
+            and m.village_sn = #{villageSn}
+        </if>) temp2
+        <where>
+            volume > 0
+        </where>
+    </select>
+
+    <!-- 通过用户id查询他所有的缴费记录和用水记录-->
+    <select id="paymentStatisticsByUser" resultType="com.icicles.wmms.entity.dto.PaymentStatisticsDTO">
+        SELECT sum(f1.account) account,u.name as user_name,u.phone,
+        (select (r.use_water) from ws_meter_reader r where f1.meter_sn=r.meter_sn and r.create_time like CONCAT('%',year(f1.create_time),'%') )as water_sum,
+        year(f1.create_time) as year
+        from t_sys_user u LEFT JOIN ws_fee_log f1 ON f1.user_sn=u.sn
+        <where>
+            <if test="userSn != null and userSn !=''">
+                and u.sn=#{userSn}
+            </if>
+            <if test="year != null and year != ''">
+                and (year(f1.create_time) = #{year} or f1.create_time IS NULL)
+            </if>
+        </where>
+        GROUP BY year
+    </select>
+</mapper>
